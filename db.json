@@ -1,0 +1,13 @@
+{
+  "blockedUrls": [
+    "example.com",
+    "sample.com",
+    "test-blocked-url.com"
+  ],
+  "notifications": [
+    {
+      "message": "Child (test-child) tried to access blocked URL: test-blocked-url.com",
+      "timestamp": "2025-10-29T13:18:56.008Z"
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Registered</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f0f2f5; text-align: center; padding: 2rem; }
+        .container { background: #fff; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); max-width: 500px; margin: auto; }
+        h1 { color: #28a745; }
+        p { font-size: 1.1rem; color: #333; }
+        input { padding: 0.5rem; width: 70%; margin-right: 10px; border-radius: 5px; border: 1px solid #ccc; }
+        button { padding: 0.5rem 1rem; border-radius: 5px; border: none; background-color: #007bff; color: white; cursor: pointer; }
+        .blocked-message { color: #dc3545; font-weight: bold; margin-top: 1rem; display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Device Successfully Registered</h1>
+        <p>This device is now being monitored.</p>
+
+        <div class="simulation">
+            <h3>URL Access Simulation</h3>
+            <input type="text" id="simulatedUrlInput" placeholder="Enter a URL to 'visit'">
+            <button id="visitBtn">Visit</button>
+            <p class="blocked-message" id="blockedMessage">Access to this URL is blocked!</p>
+        </div>
+    </div>
+
+    <script>
+        const deviceId = new URLSearchParams(window.location.search).get('id') || 'unknown-device';
+
+        document.getElementById('visitBtn').addEventListener('click', async () => {
+            const urlToVisit = document.getElementById('simulatedUrlInput').value.trim();
+            const blockedMessage = document.getElementById('blockedMessage');
+
+            if (!urlToVisit) return;
+
+            try {
+                const response = await fetch('/api/blocked-urls');
+                const blockedUrls = await response.json();
+
+                if (blockedUrls.includes(urlToVisit)) {
+                    // Show blocked message
+                    blockedMessage.style.display = 'block';
+
+                    // Send notification to the parent
+                    await fetch('/api/notifications', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            message: `Child (${deviceId}) tried to access blocked URL: ${urlToVisit}`
+                        })
+                    });
+                } else {
+                    blockedMessage.style.display = 'none';
+                    alert(`Successfully accessed ${urlToVisit}`);
+                }
+            } catch (error) {
+                console.error('Error during simulation:', error);
+            }
+        });
+    </script>
+</body>
+</html>
